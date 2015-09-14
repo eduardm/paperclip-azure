@@ -167,7 +167,8 @@ module Paperclip
       end
 
       def azure_base_url
-        "https://#{azure_account_name}.blob.core.windows.net"
+        #"https://#{azure_account_name}.blob.core.windows.net"
+        "https://content.vantano.com"
       end
       
       def azure_container
