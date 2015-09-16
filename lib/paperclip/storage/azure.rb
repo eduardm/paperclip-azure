@@ -167,8 +167,9 @@ module Paperclip
       end
 
       def azure_base_url
-        #"https://#{azure_account_name}.blob.core.windows.net"
-        "https://content.vantano.com"
+        "https://#{azure_account_name}.blob.core.windows.net"
+        #can't set https on custom Azure CDN endpoints
+        #"https://content.vantano.com"
       end
       
       def azure_container
@@ -229,7 +230,8 @@ module Paperclip
 
       def save_blob(container_name, storage_path, file)
         if file.size < 64.megabytes
-          azure_interface.create_block_blob container_name, storage_path, file.read
+          #set Content-Type, else will default to "application/octet-stream" that will not work for images in some browsers
+          azure_interface.create_block_blob container_name, storage_path, file.read, {:blob_content_type => file.content_type}
         else 
           blocks = []; count = 0
           while data = file.read(4.megabytes)
@@ -240,7 +242,7 @@ module Paperclip
             blocks << [block_id]
           end
 
-          azure_interface.commit_blob_blocks container_name, storage_path, blocks
+          azure_interface.commit_blob_blocks container_name, storage_path, blocks, {:blob_content_type => file.content_type}
         end
       end
 
